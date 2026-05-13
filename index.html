@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+<title>AutoTrack — Car Repair CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --brand: #D85A30;
+    --brand-light: #FAECE7;
+    --brand-border: #F0997B;
+    --brand-dark: #993C1D;
+    --brand-deeper: #712B13;
+    --green-bg: #E1F5EE;
+    --green-text: #085041;
+    --bg: #F5F4F1;
+    --surface: #FFFFFF;
+    --surface2: #F8F7F5;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --text: #1A1917;
+    --text2: #5F5D59;
+    --text3: #9E9C97;
+    --danger: #E24B4A;
+    --danger-bg: #FEF2F2;
+    --danger-border: #FCA5A5;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 430px;
+    background: var(--surface);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    background: var(--brand);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar-icon { font-size: 22px; }
+  .topbar h1 { font-size: 17px; font-weight: 600; flex: 1; letter-spacing: -0.01em; }
+  .topbar-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font);
+    transition: background .15s;
+  }
+  .topbar-btn:active { background: rgba(255,255,255,0.35); }
+  .topbar-btn i { font-size: 16px; }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 51px;
+    z-index: 40;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: color .15s, border-color .15s;
+    user-select: none;
+  }
+  .tab i { display: block; font-size: 20px; margin-bottom: 2px; }
+  .tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+  /* ── Views ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── Search ── */
+  .search-wrap {
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 101px;
+    z-index: 30;
+  }
+  .search-inner { position: relative; }
+  .search-inner i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 17px;
+    pointer-events: none;
+  }
+  .search-inner input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font);
+    outline: none;
+  }
+  .search-inner input:focus { border-color: var(--brand-border); }
+
+  /* ── Customer list ── */
+  .clist { padding: 12px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
+
+  .ccard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s;
+    active: scale(0.99);
+  }
+  .ccard:active { transform: scale(0.99); border-color: var(--brand-border); }
+  .ccard-top { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--brand-light);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px; color: var(--brand-dark);
+    flex-shrink: 0;
+  }
+  .ccard-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .ccard-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--text2);
+    display: flex; align-items: center; gap: 3px;
+    border: 1px solid var(--border);
+  }
+  .badge i { font-size: 12px; }
+  .badge.vehicle { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand-border); }
+  .badge.green { background: var(--green-bg); color: var(--green-text); border-color: #9FE1CB; }
+
+  /* ── Detail view ── */
+  .detail-content { padding-bottom: 80px; }
+  .detail-header {
+    background: var(--brand);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    color: #fff;
+  }
+  .detail-header button {
+    background: rgba(255,255,255,0.2);
+    border: none; color: #fff;
+    border-radius: 8px; padding: 7px 11px;
+    cursor: pointer; font-family: var(--font);
+    display: flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 500;
+    transition: background .15s;
+  }
+  .detail-header button:active { background: rgba(255,255,255,0.35); }
+  .detail-av {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 18px; color: #fff;
+    flex-shrink: 0;
+  }
+  .detail-name { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .detail-sub { font-size: 12px; opacity: .8; margin-top: 2px; }
+
+  .dsec { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .dsec-title {
+    font-size: 11px; font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 10px;
+  }
+  .info-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+  .info-row i { font-size: 17px; color: var(--text3); width: 20px; flex-shrink: 0; }
+  .info-label { font-size: 13px; color: var(--text2); flex: 1; }
+  .info-val { font-size: 13px; color: var(--text); font-weight: 500; text-align: right; }
+  .info-val.green { color: var(--green-text); }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .outline-btn {
+    flex: 1; padding: 9px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    cursor: pointer;
+    font-size: 13px; font-weight: 500;
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    font-family: var(--font);
+    transition: background .15s;
+  }
+  .outline-btn:active { background: #EDECE9; }
+  .outline-btn.danger {
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+  .outline-btn i { font-size: 15px; }
+
+  /* ── Visit cards ── */
+  .total-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px;
+    background: var(--brand-light);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+  }
+  .total-bar span { font-size: 13px; color: var(--brand-dark); font-weight: 500; }
+  .total-bar strong { font-size: 15px; font-weight: 600; color: var(--brand-dark); }
+
+  .visit-card {
+    background: var(--surface2);
+    border-left: 3px solid var(--brand);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .visit-card:last-child { margin-bottom: 0; }
+  .visit-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .visit-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .visit-km { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 3px; }
+  .visit-km i { font-size: 13px; }
+  .visit-repairs { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 7px; }
+  .visit-amount {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600;
+    color: var(--green-text);
+    background: var(--green-bg);
+    padding: 3px 9px; border-radius: 20px;
+    margin-bottom: 8px;
+    border: 1px solid #9FE1CB;
+  }
+  .visit-amount i { font-size: 12px; }
+  .visit-actions { display: flex; gap: 6px; }
+  .vbtn {
+    padding: 4px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 12px; font-weight: 500;
+    color: var(--text2);
+    display: flex; align-items: center; gap: 3px;
+    font-family: var(--font);
+    transition: background .15s;
+  }
+  .vbtn i { font-size: 13px; }
+  .vbtn:active { background: #EDECE9; }
+  .vbtn.danger { border-color: var(--danger-border); color: var(--danger); background: var(--danger-bg); }
+
+  .add-visit-btn {
+    width: 100%;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    background: none;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px; font-weight: 500;
+    font-family: var(--font);
+    margin-top: 8px;
+    transition: border-color .15s, color .15s;
+  }
+  .add-visit-btn:hover { border-color: var(--brand-border); color: var(--brand); }
+  .add-visit-btn i { font-size: 18px; color: var(--brand); }
+
+  /* ── Inline form ── */
+  .inline-form {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    margin-top: 10px;
+  }
+
+  /* ── Full form ── */
+  .form-wrap { padding: 14px 14px 80px; }
+  .form-section {
+    font-size: 11px; font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin: 16px 0 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-section:first-child { margin-top: 0; }
+  .fg { margin-bottom: 12px; }
+  .fg label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+  .fg input, .fg textarea, .fg select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .fg input:focus, .fg textarea:focus { border-color: var(--brand-border); }
+  .fg textarea { height: 72px; resize: vertical; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .primary-btn {
+    width: 100%;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    padding: 13px;
+    border-radius: var(--radius);
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: var(--font);
+    letter-spacing: -0.01em;
+    transition: background .15s, transform .1s;
+  }
+  .primary-btn:active { background: var(--brand-dark); transform: scale(0.99); }
+  .secondary-btn {
+    width: 100%;
+    background: none;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    padding: 11px;
+    border-radius: var(--radius);
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: var(--font);
+  }
+  .secondary-btn:active { background: var(--surface2); }
+
+  /* ── Dashboard ── */
+  .dash-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; }
+  .stat-card { background: var(--surface2); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .stat-val { font-size: 26px; font-weight: 600; color: var(--text); letter-spacing: -0.03em; }
+  .stat-sub { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+  .recent-section { padding: 0 14px 14px; }
+  .recent-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; padding: 4px 0 10px; }
+  .recent-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .recent-row:last-child { border-bottom: none; }
+  .rdot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0; }
+  .rname { font-size: 14px; color: var(--text); font-weight: 500; }
+  .rmeta { font-size: 12px; color: var(--text2); }
+  .ramt { font-size: 13px; font-weight: 600; color: var(--green-text); }
+
+  /* ── Loading & toast ── */
+  .loader-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    flex-direction: column; gap: 12px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { font-size: 14px; color: var(--text2); font-weight: 500; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff;
+    padding: 10px 18px; border-radius: 30px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .toast.error { background: var(--danger); }
+
+  /* ── Config screen ── */
+  .config-screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 24px; text-align: center;
+  }
+  .config-logo { font-size: 48px; color: var(--brand); margin-bottom: 16px; }
+  .config-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -0.02em; }
+  .config-sub { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 28px; }
+  .config-form { width: 100%; text-align: left; }
+  .config-form label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+  .config-form input {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    font-size: 14px; background: var(--surface); color: var(--text);
+    font-family: var(--mono); outline: none; margin-bottom: 10px;
+  }
+  .config-form input:focus { border-color: var(--brand-border); }
+  .config-note { font-size: 12px; color: var(--text3); margin-top: 12px; line-height: 1.6; }
+
+  /* ── Empty state ── */
+  .empty { text-align: center; padding: 48px 24px; color: var(--text2); }
+  .empty i { font-size: 42px; color: var(--text3); display: block; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* ── Misc ── */
+  .no-results { text-align: center; padding: 32px 16px; color: var(--text2); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Config screen shown before setup -->
+  <div id="config-screen" class="config-screen" style="display:none">
+    <i class="ti ti-car config-logo"></i>
+    <div class="config-title">Welcome to AutoTrack</div>
+    <div class="config-sub">Enter your Google Apps Script URL and secret key to connect to your Google Sheet database.</div>
+    <div class="config-form">
+      <label>Apps Script URL</label>
+      <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
+      <label>Secret key</label>
+      <input type="text" id="cfg-secret" placeholder="your-secret-key">
+      <button class="primary-btn" onclick="saveConfig()">Connect</button>
+      <div class="config-note">Your URL and key are stored only in this browser. You can update them anytime in Settings.</div>
+    </div>
+  </div>
+
+  <!-- Main app -->
+  <div id="main-app" style="display:none">
+    <div class="topbar" id="topbar">
+      <i class="ti ti-car topbar-icon"></i>
+      <h1 id="topbar-title">AutoTrack</h1>
+      <button class="topbar-btn" onclick="showAddCustomer()" id="add-btn">
+        <i class="ti ti-plus"></i>Add
+      </button>
+    </div>
+
+    <div class="tab-bar" id="tab-bar">
+      <div class="tab active" onclick="switchTab('customers')"><i class="ti ti-users"></i>Customers</div>
+      <div class="tab" onclick="switchTab('dashboard')"><i class="ti ti-chart-bar"></i>Dashboard</div>
+      <div class="tab" onclick="switchTab('new')"><i class="ti ti-circle-plus"></i>New</div>
+      <div class="tab" onclick="switchTab('settings')"><i class="ti ti-settings"></i>Settings</div>
+    </div>
+
+    <!-- Customers tab -->
+    <div class="view active" id="view-customers">
+      <div class="search-wrap">
+        <div class="search-inner">
+          <i class="ti ti-search"></i>
+          <input type="text" id="search-input" oninput="filterCustomers(this.value)" onkeyup="filterCustomers(this.value)" placeholder="Search name, plate, model…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0;line-height:1"><i class="ti ti-x"></i></button>
+        </div>
+      </div>
+      <div class="clist" id="clist"></div>
+    </div>
+
+    <!-- Dashboard tab -->
+    <div class="view" id="view-dashboard">
+      <div class="dash-stats" id="dash-stats"></div>
+      <div class="recent-section">
+        <div class="recent-title">Customers by total spend</div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
+
+    <!-- New customer tab -->
+    <div class="view" id="view-new">
+      <div class="form-wrap">
+        <div class="form-section" id="new-fsec">Customer profile</div>
+        <div class="fg"><label>Full name *</label><input type="text" id="fn-name" placeholder="e.g. Tan Wei Ming"></div>
+        <div class="fg"><label>Contact number</label><input type="tel" id="fn-phone" placeholder="e.g. 9123 4567"></div>
+        <div class="form-row">
+          <div class="fg"><label>Vehicle plate *</label><input type="text" id="fn-plate" placeholder="SBA1234A"></div>
+          <div class="fg"><label>Vehicle model</label><input type="text" id="fn-model" placeholder="Toyota Vios"></div>
+        </div>
+        <div class="form-section">First visit (optional)</div>
+        <div class="form-row">
+          <div class="fg"><label>Mileage (km)</label><input type="number" id="fn-mileage" placeholder="45000"></div>
+          <div class="fg"><label>Date</label><input type="date" id="fn-date"></div>
+        </div>
+        <div class="fg"><label>Repairs / services done</label><textarea id="fn-repairs" placeholder="e.g. Oil change, brake pad replacement…"></textarea></div>
+        <div class="fg"><label>Amount (S$)</label><input type="number" id="fn-amount" placeholder="0.00" step="0.01" min="0"></div>
+        <button class="primary-btn" id="new-sbtn" onclick="saveCustomer()">Save customer</button>
+        <button class="secondary-btn" onclick="switchTab('customers')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Settings tab -->
+    <div class="view" id="view-settings">
+      <div class="form-wrap">
+        <div class="form-section">Connection settings</div>
+        <div class="fg"><label>Apps Script URL</label><input type="url" id="set-url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+        <div class="fg"><label>Secret key</label><input type="text" id="set-secret" placeholder="your-secret-key"></div>
+        <button class="primary-btn" onclick="updateConfig()">Save settings</button>
+        <div class="form-section" style="margin-top:24px">Data</div>
+        <button class="secondary-btn" onclick="refreshData()"><i class="ti ti-refresh" style="vertical-align:-2px;margin-right:4px"></i>Refresh from Google Sheets</button>
+      </div>
+    </div>
+
+    <!-- Detail view (dynamic) -->
+    <div class="view" id="view-detail"></div>
+
+    <!-- Edit visit view (dynamic) -->
+    <div class="view" id="view-edit-visit"></div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-overlay" id="loader" style="display:none">
+    <div class="spinner"></div>
+    <div class="loader-text" id="loader-text">Loading…</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────────
+let SCRIPT_URL = localStorage.getItem('at_url') || '';
+let SECRET     = localStorage.getItem('at_secret') || '';
+let db         = { customers: [] };
+
+function saveConfig() {
+  const url    = document.getElementById('cfg-url').value.trim();
+  const secret = document.getElementById('cfg-secret').value.trim();
+  if (!url || !secret) return showToast('Please enter both URL and secret key.', true);
+  SCRIPT_URL = url; SECRET = secret;
+  localStorage.setItem('at_url', url);
+  localStorage.setItem('at_secret', secret);
+  bootApp();
+}
+
+function updateConfig() {
+  const url    = document.getElementById('set-url').value.trim();
+  const secret = document.getElementById('set-secret').value.trim();
+  if (!url || !secret) return showToast('URL and key required.', true);
+  SCRIPT_URL = url; SECRET = secret;
+  localStorage.setItem('at_url', url);
+  localStorage.setItem('at_secret', secret);
+  showToast('Settings saved.');
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  if (!SCRIPT_URL || !SECRET) {
+    document.getElementById('config-screen').style.display = 'flex';
+  } else {
+    bootApp();
+  }
+};
+
+async function bootApp() {
+  document.getElementById('config-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  await refreshData();
+}
+
+async function refreshData() {
+  showLoader('Loading data…');
+  try {
+    const res  = await apiGet('getAll');
+    db.customers = Array.isArray(res) ? res : [];
+    renderList(db.customers);
+    hideLoader();
+    showToast('Data loaded.');
+  } catch(e) {
+    hideLoader();
+    showToast('Could not load data. Check your settings.', true);
+  }
+}
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+async function apiGet(action, params = {}) {
+  const url = new URL(SCRIPT_URL);
+  url.searchParams.set('secret', SECRET);
+  url.searchParams.set('action', action);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const res = await fetch(url.toString());
+  return res.json();
+}
+
+async function apiPost(body) {
+  const payload = JSON.stringify({ ...body, secret: SECRET });
+  const params = new URLSearchParams();
+  params.set('payload', payload);
+  console.log('[apiPost] action:', body.action, '| payload length:', payload.length);
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: params,
+  });
+  const text = await res.text();
+  console.log('[apiPost] raw response:', text);
+  try {
+    return JSON.parse(text);
+  } catch(e) {
+    return { error: 'Invalid response from server: ' + text.slice(0, 120) };
+  }
+}
+
+// ─── Utilities ───────────────────────────────────────────────────────────────
+function initials(name) { return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase(); }
+function fmtDate(d) {
+  if (!d) return '—';
+  // Accepts YYYY-MM-DD or full ISO timestamp
+  const iso = String(d).length === 10 ? d + 'T00:00:00' : d;
+  const dt = new Date(iso);
+  if (isNaN(dt)) return String(d);
+  return dt.toLocaleDateString('en-SG', { day:'numeric', month:'short', year:'numeric' });
+}
+function fmtAmt(a) { return 'S$' + Number(a || 0).toFixed(2); }
+function totalSpend(c) { return c.visits.reduce((s, v) => s + Number(v.amount || 0), 0); }
+function latestVisit(c) { return (c.visits||[]).slice().sort((a,b) => new Date(b.date)-new Date(a.date))[0]; }
+
+function showLoader(txt='Loading…') {
+  document.getElementById('loader-text').textContent = txt;
+  document.getElementById('loader').style.display = 'flex';
+}
+function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+let toastTimer;
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) =>
+    t.classList.toggle('active', ['customers','dashboard','new','settings'][i] === tab));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tab-bar').style.display = 'flex';
+  if (tab === 'new') { showAddCustomer(); return; }
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('topbar-title').textContent = tab === 'dashboard' ? 'Dashboard' : tab === 'settings' ? 'Settings' : 'AutoTrack';
+  document.getElementById('add-btn').style.display = (tab === 'dashboard' || tab === 'settings') ? 'none' : 'flex';
+  if (tab === 'dashboard') renderDash();
+  if (tab === 'customers') {
+    // Reset search on returning to customers tab
+    const input = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear');
+    if (input) { input.value = ''; input.blur(); }
+    if (clearBtn) clearBtn.style.display = 'none';
+    renderList(db.customers);
+  }
+  if (tab === 'settings') {
+    document.getElementById('set-url').value = SCRIPT_URL;
+    document.getElementById('set-secret').value = SECRET;
+  }
+}
+
+function backToList() {
+  document.getElementById('tab-bar').style.display = 'flex';
+  switchTab('customers');
+}
+
+// ─── Customer list ─────────────────────────────────────────────────────────────
+function filterCustomers(q) {
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+  if (!q) { renderList(db.customers); return; }
+  const lower = q.toLowerCase();
+  // Strip spaces and dashes for phone comparison so "91234567" matches "9123 4567"
+  const qPhone = q.replace(/[\s\-]/g, '');
+  renderList(db.customers.filter(c =>
+    (c.name||'').toLowerCase().includes(lower) ||
+    (c.plate||'').toLowerCase().includes(lower) ||
+    (c.model||'').toLowerCase().includes(lower) ||
+    (c.phone||'').replace(/[\s\-]/g, '').includes(qPhone)
+  ));
+}
+
+function clearSearch() {
+  const input = document.getElementById('search-input');
+  const clearBtn = document.getElementById('search-clear');
+  if (input) input.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  renderList(db.customers);
+}
+
+function renderList(list) {
+  const el = document.getElementById('clist');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><i class="ti ti-user-search"></i><p>No customers found</p></div>';
+    return;
+  }
+  el.innerHTML = [...list].sort((a,b) => {
+    const av = latestVisit(a), bv = latestVisit(b);
+    return new Date(bv ? bv.date : '2000-01-01') - new Date(av ? av.date : '2000-01-01');
+  }).map(c => {
+    const lv = latestVisit(c);
+    const ts = totalSpend(c);
+    return `<div class="ccard" onclick="showDetail(${c.id})">
+      <div class="ccard-top">
+        <div class="avatar">${initials(c.name)}</div>
+        <div>
+          <div class="ccard-name">${c.name}</div>
+          <div class="ccard-sub">${c.phone || '—'}</div>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge vehicle"><i class="ti ti-car"></i>${c.plate || '—'}</span>
+        <span class="badge"><i class="ti ti-engine"></i>${c.model || '—'}</span>
+        <span class="badge green"><i class="ti ti-history"></i>${(c.visits||[]).length} visit${(c.visits||[]).length!==1?'s':''}</span>
+        ${ts > 0 ? `<span class="badge green"><i class="ti ti-receipt"></i>${fmtAmt(ts)}</span>` : ''}
+        ${lv ? `<span class="badge"><i class="ti ti-calendar"></i>${fmtDate(lv.date)}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Customer detail ───────────────────────────────────────────────────────────
+function showDetail(cid) {
+  const c = db.customers.find(x => String(x.id) === String(cid));
+  if (!c) return;
+  const sorted = [...(c.visits||[])].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const lv = sorted[0];
+  const ts = totalSpend(c);
+  const el = document.getElementById('view-detail');
+  el.innerHTML = `<div class="detail-content">
+    <div class="detail-header">
+      <button onclick="backToList()"><i class="ti ti-arrow-left"></i></button>
+      <div class="detail-av">${initials(c.name)}</div>
+      <div>
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-sub">${(c.visits||[]).length} visit${(c.visits||[]).length!==1?'s':''}${lv?' · Last: '+fmtDate(lv.date):''}</div>
+      </div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title">Contact &amp; vehicle</div>
+      <div class="info-row"><i class="ti ti-phone"></i><span class="info-label">Phone</span><span class="info-val">${c.phone||'—'}</span></div>
+      <div class="info-row"><i class="ti ti-car"></i><span class="info-label">Plate</span><span class="info-val">${c.plate||'—'}</span></div>
+      <div class="info-row"><i class="ti ti-engine"></i><span class="info-label">Model</span><span class="info-val">${c.model||'—'}</span></div>
+      ${lv ? `<div class="info-row"><i class="ti ti-gauge"></i><span class="info-label">Latest mileage</span><span class="info-val">${Number(lv.mileage||0).toLocaleString()} km</span></div>` : ''}
+      ${ts > 0 ? `<div class="info-row"><i class="ti ti-receipt"></i><span class="info-label">Total spent</span><span class="info-val green">${fmtAmt(ts)}</span></div>` : ''}
+      <div class="btn-row">
+        <button class="outline-btn" onclick="editCustomer(${cid})"><i class="ti ti-edit"></i>Edit profile</button>
+        <button class="outline-btn danger" onclick="confirmDeleteCustomer(${cid})"><i class="ti ti-trash"></i>Delete</button>
+      </div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title">Service history</div>
+      ${sorted.length ? `<div class="total-bar"><span>Total (${sorted.length} visit${sorted.length!==1?'s':''})</span><strong>${fmtAmt(ts)}</strong></div>` : ''}
+      ${sorted.length ? sorted.map(v => `
+        <div class="visit-card" id="vc-${v.id}">
+          <div class="visit-top">
+            <span class="visit-date">${fmtDate(v.date)}</span>
+            <span class="visit-km"><i class="ti ti-gauge"></i>${Number(v.mileage||0).toLocaleString()} km</span>
+          </div>
+          <div class="visit-repairs">${v.repairs || 'No details recorded'}</div>
+          ${Number(v.amount||0) > 0 ? `<div class="visit-amount"><i class="ti ti-receipt"></i>${fmtAmt(v.amount)}</div>` : ''}
+          <div class="visit-actions">
+            <button class="vbtn" onclick="showEditVisit(${cid},${v.id})"><i class="ti ti-edit"></i>Edit</button>
+            <button class="vbtn danger" onclick="confirmDeleteVisit(${cid},${v.id})"><i class="ti ti-trash"></i>Delete</button>
+          </div>
+        </div>`).join('') : '<p style="font-size:13px;color:var(--text2)">No visits yet.</p>'}
+      <button class="add-visit-btn" onclick="showAddVisitInline(${cid})"><i class="ti ti-plus"></i>Add new visit</button>
+      <div id="inline-visit-${cid}"></div>
+    </div>
+  </div>`;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('topbar-title').textContent = 'Customer profile';
+  document.getElementById('add-btn').style.display = 'none';
+  document.getElementById('tab-bar').style.display = 'none';
+}
+
+// ─── Add visit inline ──────────────────────────────────────────────────────────
+function showAddVisitInline(cid) {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inline-visit-' + cid).innerHTML = `
+    <div class="inline-form">
+      <div class="form-row" style="margin-bottom:10px">
+        <div class="fg" style="margin-bottom:0"><label>Date</label><input type="date" id="iv-date" value="${today}"></div>
+        <div class="fg" style="margin-bottom:0"><label>Mileage (km)</label><input type="number" id="iv-mileage" placeholder="50000"></div>
+      </div>
+      <div class="fg"><label>Repairs / services done *</label><textarea id="iv-repairs" placeholder="Describe work done…"></textarea></div>
+      <div class="fg"><label>Amount (S$)</label><input type="number" id="iv-amount" placeholder="0.00" step="0.01" min="0"></div>
+      <div style="display:flex;gap:8px">
+        <button class="primary-btn" style="margin-top:0" onclick="saveVisit(${cid})">Save visit</button>
+        <button class="secondary-btn" style="margin-top:0;width:auto;padding:11px 16px" onclick="document.getElementById('inline-visit-${cid}').innerHTML=''">Cancel</button>
+      </div>
+    </div>`;
+}
+
+async function saveVisit(cid) {
+  const repairs = document.getElementById('iv-repairs').value.trim();
+  if (!repairs) return showToast('Please enter repairs / services done.', true);
+  showLoader('Saving visit…');
+  const result = await apiPost({
+    action: 'addVisit',
+    customerId: cid,
+    date: document.getElementById('iv-date').value,
+    mileage: document.getElementById('iv-mileage').value || 0,
+    repairs,
+    amount: parseFloat(document.getElementById('iv-amount').value) || 0
+  });
+  if (result.error) { hideLoader(); return showToast(result.error, true); }
+  await refreshData();
+  hideLoader();
+  showToast('Visit saved.');
+  showDetail(cid);
+}
+
+// ─── Edit visit ───────────────────────────────────────────────────────────────
+function showEditVisit(cid, vid) {
+  const c = db.customers.find(x => String(x.id) === String(cid));
+  const v = (c.visits||[]).find(x => String(x.id) === String(vid));
+  if (!v) return;
+  const el = document.getElementById('view-edit-visit');
+  el.innerHTML = `<div class="form-wrap">
+    <div class="form-section">Edit visit</div>
+    <div class="form-row">
+      <div class="fg"><label>Date</label><input type="date" id="ev-date" value="${v.date||''}"></div>
+      <div class="fg"><label>Mileage (km)</label><input type="number" id="ev-mileage" value="${v.mileage||0}"></div>
+    </div>
+    <div class="fg"><label>Repairs / services done</label><textarea id="ev-repairs">${v.repairs||''}</textarea></div>
+    <div class="fg"><label>Amount (S$)</label><input type="number" id="ev-amount" value="${Number(v.amount||0).toFixed(2)}" step="0.01" min="0"></div>
+    <button class="primary-btn" onclick="updateVisit(${cid},${vid})">Update visit</button>
+    <button class="secondary-btn" onclick="showDetail(${cid})">Cancel</button>
+  </div>`;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('topbar-title').textContent = 'Edit visit';
+}
+
+async function updateVisit(cid, vid) {
+  showLoader('Updating…');
+  const result = await apiPost({
+    action: 'updateVisit',
+    id: vid,
+    date: document.getElementById('ev-date').value,
+    mileage: document.getElementById('ev-mileage').value || 0,
+    repairs: document.getElementById('ev-repairs').value.trim(),
+    amount: parseFloat(document.getElementById('ev-amount').value) || 0
+  });
+  if (result.error) { hideLoader(); return showToast(result.error, true); }
+  await refreshData();
+  hideLoader();
+  showToast('Visit updated.');
+  showDetail(cid);
+}
+
+async function confirmDeleteVisit(cid, vid) {
+  if (!confirm('Delete this visit record?')) return;
+  showLoader('Deleting…');
+  await apiPost({ action: 'deleteVisit', id: vid });
+  await refreshData();
+  hideLoader();
+  showToast('Visit deleted.');
+  showDetail(cid);
+}
+
+// ─── Add/edit customer ────────────────────────────────────────────────────────
+function showAddCustomer() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-new').classList.add('active');
+  document.getElementById('topbar-title').textContent = 'New customer';
+  document.getElementById('add-btn').style.display = 'none';
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === 2));
+  document.getElementById('fn-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('new-fsec').textContent = 'Customer profile';
+  document.getElementById('new-sbtn').textContent = 'Save customer';
+  document.getElementById('new-sbtn').onclick = saveCustomer;
+  ['fn-name','fn-phone','fn-plate','fn-model','fn-mileage','fn-repairs','fn-amount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'TEXTAREA') el.value = ''; else el.value = '';
+  });
+}
+
+async function saveCustomer() {
+  const name   = document.getElementById('fn-name').value.trim();
+  const plate  = document.getElementById('fn-plate').value.trim();
+  if (!name || !plate) return showToast('Name and plate number are required.', true);
+  showLoader('Saving customer…');
+  const cResult = await apiPost({
+    action: 'addCustomer',
+    name, plate,
+    phone: document.getElementById('fn-phone').value.trim(),
+    model: document.getElementById('fn-model').value.trim()
+  });
+  if (cResult.error) { hideLoader(); return showToast(cResult.error, true); }
+  const repairs = document.getElementById('fn-repairs').value.trim();
+  if (repairs) {
+    await apiPost({
+      action: 'addVisit',
+      customerId: cResult.id,
+      date: document.getElementById('fn-date').value,
+      mileage: document.getElementById('fn-mileage').value || 0,
+      repairs,
+      amount: parseFloat(document.getElementById('fn-amount').value) || 0
+    });
+  }
+  await refreshData();
+  hideLoader();
+  showToast('Customer saved.');
+  switchTab('customers');
+}
+
+function editCustomer(cid) {
+  const c = db.customers.find(x => String(x.id) === String(cid));
+  document.getElementById('tab-bar').style.display = 'flex';
+  showAddCustomer();
+  document.getElementById('fn-name').value  = c.name  || '';
+  document.getElementById('fn-phone').value = c.phone || '';
+  document.getElementById('fn-plate').value = c.plate || '';
+  document.getElementById('fn-model').value = c.model || '';
+  document.getElementById('new-fsec').textContent = 'Edit customer profile';
+  document.getElementById('new-sbtn').textContent = 'Update customer';
+  document.getElementById('new-sbtn').onclick = () => updateCustomer(cid);
+  document.getElementById('topbar-title').textContent = 'Edit profile';
+}
+
+async function updateCustomer(cid) {
+  const name  = document.getElementById('fn-name').value.trim();
+  const plate = document.getElementById('fn-plate').value.trim();
+  if (!name || !plate) return showToast('Name and plate are required.', true);
+  showLoader('Updating…');
+  const result = await apiPost({
+    action: 'updateCustomer', id: cid, name, plate,
+    phone: document.getElementById('fn-phone').value.trim(),
+    model: document.getElementById('fn-model').value.trim()
+  });
+  if (result.error) { hideLoader(); return showToast(result.error, true); }
+  await refreshData();
+  hideLoader();
+  showToast('Customer updated.');
+  showDetail(cid);
+}
+
+async function confirmDeleteCustomer(cid) {
+  if (!confirm('Delete this customer and all their visit records? This cannot be undone.')) return;
+  showLoader('Deleting…');
+  await apiPost({ action: 'deleteCustomer', id: cid });
+  await refreshData();
+  hideLoader();
+  showToast('Customer deleted.');
+  backToList();
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+function renderDash() {
+  const cs = db.customers;
+  const allVisits = cs.flatMap(c => c.visits || []);
+  const models = [...new Set(cs.map(c => c.model).filter(Boolean))].length;
+  const sorted = [...cs].sort((a,b) => totalSpend(b) - totalSpend(a));
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-val">${cs.length}</div><div class="stat-sub">total profiles</div></div>
+    <div class="stat-card"><div class="stat-label">Vehicle models</div><div class="stat-val">${models}</div><div class="stat-sub">unique</div></div>`;
+
+  document.getElementById('recent-list').innerHTML = sorted.length
+    ? sorted.map(c => {
+        const lv = latestVisit(c);
+        return `<div class="recent-row">
+          <div class="rdot"></div>
+          <div style="flex:1">
+            <div class="rname">${c.name}</div>
+            <div class="rmeta">${c.plate||'—'} · ${(c.visits||[]).length} visit${(c.visits||[]).length!==1?'s':''}${lv?' · '+fmtDate(lv.date):''}</div>
+          </div>
+          <div class="ramt">${fmtAmt(totalSpend(c))}</div>
+        </div>`;
+      }).join('')
+    : '<p style="font-size:13px;color:var(--text2)">No data yet.</p>';
+}
+
+
+</script>
+</body>
+</html>
